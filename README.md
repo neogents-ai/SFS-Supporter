@@ -1,5 +1,6 @@
 <div align="center">
-  <h1>🍣 SoulFood Sushi OS</h1>
+  <img src="nori_maki.png" alt="Nori Maki" width="120" />
+  <h1>SoulFood Sushi OS</h1>
   <p><strong>The AI life audit operating system built for Foundational Black Americans.</strong></p>
   <p>Built by <strong>Coach Berry</strong> · NEO Gents Consultancy · Oakland, CA</p>
   <br>
