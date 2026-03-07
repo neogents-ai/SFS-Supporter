@@ -189,6 +189,16 @@
     .track-card ul { list-style: none; }
     .track-card ul li { padding: 5px 0; color: var(--muted); font-size: 0.9rem; }
     .track-card ul li::before { content: "✓  "; color: var(--green); font-weight: 700; }
+    .track-card.gold-track { border-color: rgba(243,156,18,0.3); }
+    .track-card.gold-track:hover { border-color: var(--gold); background: rgba(243,156,18,0.05); }
+    .track-card.gold-track.selected {
+      border-color: var(--gold);
+      background: rgba(243,156,18,0.09);
+      box-shadow: 0 0 0 1px var(--gold);
+    }
+    .track-card.gold-track .track-name { color: var(--gold); }
+    .track-card.gold-track.selected .check { background: var(--gold); border-color: var(--gold); }
+    .track-card.gold-track ul li::before { color: var(--gold); }
 
     /* ── CALCULATOR ── */
     .calc-box {
@@ -422,7 +432,7 @@
 <!-- ── FORM ── -->
 <section id="form-section">
   <h2>Become a Founding Supporter</h2>
-  <p>Choose your track, pick your amount, and lock in your benefits before public launch.</p>
+  <p>Choose your track and lock in your spot before public launch.</p>
 
   <!-- Track selection -->
   <div class="track-grid" style="margin: 28px 0 24px;">
@@ -446,6 +456,28 @@
         <li>Via Republic or WeFunder (Q2 2026)</li>
         <li>Voting rights proportional to shares</li>
         <li>Exit payout if we sell or IPO</li>
+      </ul>
+    </div>
+    <div class="track-card gold-track" data-track="neo4life" onclick="selectTrack(this)">
+      <div class="check">&#x2713;</div>
+      <div class="track-name">NEO 4 LIFE 4 Equity</div>
+      <div class="track-min">$0 &bull; Adults with an idea + the will to build</div>
+      <ul>
+        <li>SoulFood OS audit + 1-page pitch + 5-min video</li>
+        <li>If accepted: NEO Gents installs full AI stack</li>
+        <li>Domain + license paid by NEO Gents</li>
+        <li>20% equity partnership &bull; 5 spots per cohort</li>
+      </ul>
+    </div>
+    <div class="track-card gold-track" data-track="youth" onclick="selectTrack(this)">
+      <div class="check">&#x2713;</div>
+      <div class="track-name">Youth Partner Equity</div>
+      <div class="track-min">$0 For Life &bull; Ages 10&ndash;14 + Older Partner 16+</div>
+      <ul>
+        <li>Junior learns: SFS basics, money goals, biz fundamentals</li>
+        <li>Older partner learns: n8n, AI tools, COMP curriculum</li>
+        <li>50/50 ownership &mdash; NEO Gents takes 0%</li>
+        <li>No financial penalties. Ever. 5 pairs per cohort.</li>
       </ul>
     </div>
   </div>
@@ -497,21 +529,35 @@
         <input type="tel" id="phone" name="phone" placeholder="(Optional)" />
       </div>
 
-      <div class="form-group">
+      <div id="amountGroup" class="form-group">
         <label for="amount">Investment Amount (USD) *</label>
-        <input type="number" id="amount" name="amount" min="100" step="50" placeholder="e.g. 250" required />
+        <input type="number" id="amount" name="amount" min="100" step="50" placeholder="e.g. 250" />
+      </div>
+
+      <div id="youthRoleGroup" class="form-group" style="display:none">
+        <label for="youthRole">I am applying as *</label>
+        <select id="youthRole" name="youth_role">
+          <option value="">— Select your role —</option>
+          <option value="junior">Junior (ages 10–14) — I need an older partner</option>
+          <option value="older_partner">Older Partner (ages 16+) — I am ready to lead</option>
+        </select>
+      </div>
+
+      <div id="ideaGroup" class="form-group" style="display:none">
+        <label for="idea">Describe your idea *</label>
+        <textarea id="idea" name="idea" rows="4" placeholder="What pain point do you want to solve? What do you want to build?"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="notes">Why are you excited about SFS? (Optional)</label>
-        <textarea id="notes" name="notes" rows="4" placeholder="Tell us what brought you here..."></textarea>
+        <label for="notes">Anything else you want us to know? (Optional)</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="Tell us what brought you here..."></textarea>
       </div>
 
-      <button type="submit" class="submit-btn" id="submitBtn">Join as a Founding Supporter</button>
+      <button type="submit" class="submit-btn" id="submitBtn">Submit My Application</button>
     </form>
 
     <div class="disclaimer">
-      <strong>Important:</strong> This is not a solicitation for investment under securities law. Revenue Share participants are contributing to product development under defined payback terms. Equity participants will complete an SEC-compliant investment process via a registered crowdfunding platform (Republic or WeFunder) before any funds are transferred. By submitting, you agree to be contacted by NEO Gents regarding your supporter application. No commitment is made until a formal agreement is signed.
+      <strong>Important:</strong> This is not a solicitation for investment under securities law. Revenue Share participants are contributing to product development under defined payback terms. Equity participants will complete an SEC-compliant process via a registered crowdfunding platform before any funds are transferred. NEO 4 LIFE and Youth Partner applicants are not making any financial commitment — submission is an expression of interest only. No commitment is made until a formal agreement is signed. We never charge children. Ever.
     </div>
   </div>
 </section>
@@ -523,7 +569,7 @@
 </footer>
 
 <script>
-  // ── Track selection ──
+  const ZERO_TRACKS = ['youth', 'neo4life'];
   let selectedTrack = '';
 
   function selectTrack(card) {
@@ -532,32 +578,71 @@
     selectedTrack = card.dataset.track;
     document.getElementById('trackInput').value = selectedTrack;
 
-    const amountInput = document.getElementById('amount');
-    if (selectedTrack === 'equity') {
-      amountInput.min = 500;
-      if (parseInt(amountInput.value || 0) < 500) amountInput.value = 500;
+    const amountGroup   = document.getElementById('amountGroup');
+    const amountInput   = document.getElementById('amount');
+    const youthGroup    = document.getElementById('youthRoleGroup');
+    const ideaGroup     = document.getElementById('ideaGroup');
+
+    if (ZERO_TRACKS.includes(selectedTrack)) {
+      amountGroup.style.display  = 'none';
+      amountInput.value          = '0';
+      amountInput.removeAttribute('required');
     } else {
-      amountInput.min = 100;
+      amountGroup.style.display  = 'block';
+      amountInput.removeAttribute('required');
+      if (selectedTrack === 'equity') {
+        amountInput.min = 500;
+        if (parseInt(amountInput.value || 0) < 500) amountInput.value = 500;
+      } else {
+        amountInput.min = 100;
+        if (!amountInput.value) amountInput.value = '';
+      }
     }
+
+    youthGroup.style.display = (selectedTrack === 'youth')    ? 'block' : 'none';
+    ideaGroup.style.display  = (selectedTrack === 'neo4life') ? 'block' : 'none';
+
     updateCalc();
   }
 
-  // ── Calculator ──
+  // ── Calculator / info box ──
   function updateCalc() {
-    const box = document.getElementById('calcBox');
-    const rows = document.getElementById('calcRows');
+    const box    = document.getElementById('calcBox');
+    const rows   = document.getElementById('calcRows');
     const amount = parseInt(document.getElementById('amount').value || 0);
 
-    if (!selectedTrack || !amount || amount < 100) {
-      box.style.display = 'none';
+    if (!selectedTrack) { box.style.display = 'none'; return; }
+
+    if (selectedTrack === 'youth') {
+      box.style.display = 'block';
+      rows.innerHTML = `
+        <div class="calc-row"><span>Your investment</span><span class="val">$0 — Free for life</span></div>
+        <div class="calc-row"><span>Ownership</span><span class="val">50/50 between the two partners</span></div>
+        <div class="calc-row"><span>NEO Gents takes</span><span class="val">0%</span></div>
+        <div class="calc-row"><span>Financial penalties</span><span class="val">None. Ever. These are children.</span></div>
+        <div class="calc-row"><span>Cohort size</span><span class="val">5 pairs — apply early</span></div>
+      `;
       return;
     }
 
+    if (selectedTrack === 'neo4life') {
+      box.style.display = 'block';
+      rows.innerHTML = `
+        <div class="calc-row"><span>Your investment</span><span class="val">$0</span></div>
+        <div class="calc-row"><span>What NEO Gents brings</span><span class="val">Full AI stack + domain + license</span></div>
+        <div class="calc-row"><span>Equity split</span><span class="val">You build — NEO Gents takes 20%</span></div>
+        <div class="calc-row"><span>Next step after submit</span><span class="val">1-page pitch + 5-min video review</span></div>
+        <div class="calc-row"><span>Cohort size</span><span class="val">5 spots — limited</span></div>
+      `;
+      return;
+    }
+
+    if (!amount || amount < 100) { box.style.display = 'none'; return; }
     box.style.display = 'block';
 
     if (selectedTrack === 'revenue') {
-      const sharePct = ((amount / 100) * 0.5).toFixed(2);
-      const payout   = amount * 2;
+      const sharePct  = ((amount / 100) * 0.5).toFixed(2);
+      const payout    = amount * 2;
       const quarterly = (20000 * (sharePct / 100)).toFixed(0);
       rows.innerHTML = `
         <div class="calc-row"><span>Your investment</span><span class="val">$${amount.toLocaleString()}</span></div>
@@ -580,23 +665,35 @@
   document.getElementById('amount').addEventListener('input', updateCalc);
 
   // ── Formspree AJAX submit ──
-  const form     = document.getElementById('supporterForm');
-  const btn      = document.getElementById('submitBtn');
+  const form       = document.getElementById('supporterForm');
+  const btn        = document.getElementById('submitBtn');
   const successBox = document.getElementById('successBox');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!selectedTrack) {
-      alert('Please choose a support track (Revenue Share or Equity) before submitting.');
+      alert('Please choose a track before submitting.');
       return;
     }
-    if (!form.name.value.trim() || !form.email.value.trim() || !form.amount.value) {
-      alert('Please fill in your name, email, and investment amount.');
+    if (!form.name.value.trim() || !form.email.value.trim()) {
+      alert('Please fill in your name and email.');
+      return;
+    }
+    if (!ZERO_TRACKS.includes(selectedTrack) && !document.getElementById('amount').value) {
+      alert('Please enter your investment amount.');
+      return;
+    }
+    if (selectedTrack === 'neo4life' && !document.getElementById('idea').value.trim()) {
+      alert('Please describe your idea — that\'s what gets you in the door.');
+      return;
+    }
+    if (selectedTrack === 'youth' && !document.getElementById('youthRole').value) {
+      alert('Please select whether you are applying as a Junior or Older Partner.');
       return;
     }
 
-    btn.disabled = true;
+    btn.disabled    = true;
     btn.textContent = 'Sending...';
 
     try {
@@ -607,19 +704,19 @@
       });
 
       if (res.ok) {
-        form.style.display = 'none';
+        form.style.display       = 'none';
         successBox.style.display = 'block';
       } else {
         const data = await res.json();
-        const msg = (data.errors || []).map(e => e.message).join(', ') || 'Submission failed. Please try again.';
+        const msg  = (data.errors || []).map(e => e.message).join(', ') || 'Submission failed. Please try again.';
         alert(msg);
-        btn.disabled = false;
-        btn.textContent = 'Join as a Founding Supporter';
+        btn.disabled    = false;
+        btn.textContent = 'Submit My Application';
       }
     } catch {
       alert('Network error. Please check your connection and try again.');
-      btn.disabled = false;
-      btn.textContent = 'Join as a Founding Supporter';
+      btn.disabled    = false;
+      btn.textContent = 'Submit My Application';
     }
   });
 </script>
