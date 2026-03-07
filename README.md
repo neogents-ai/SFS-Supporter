@@ -4,7 +4,7 @@
   <p><strong>The AI life audit operating system built for Foundational Black Americans.</strong></p>
   <p>Built by <strong>Coach Berry</strong> · NEO Gents Consultancy · Oakland, CA</p>
   <br>
-  <a href="https://supporter.neogents.ai">
+  <a href="https://neogents-ai.github.io/SFS-Supporter">
     <img src="https://img.shields.io/badge/%E2%86%92%20Become%20a%20Founding%20Supporter-2ecc71?style=for-the-badge&labelColor=111&color=2ecc71" alt="Become a Founding Supporter" />
   </a>
 </div>
@@ -49,7 +49,7 @@ Every supporter also gets:
 
 ## Ready?
 
-**[Fill out the supporter form here →](https://supporter.neogents.ai)**
+**[Fill out the supporter form here →](https://neogents-ai.github.io/SFS-Supporter)**
 
 The form takes about 2 minutes. We'll reach out within 48 hours with your Discord invite, affiliate links, and next steps.
 
