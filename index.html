@@ -22,6 +22,8 @@
       --text:         #dde8e0;
       --muted:        rgba(221,232,224,0.48);
       --blur:         blur(18px) saturate(160%);
+      --r:            3px;   /* sharp — base radius for inputs/buttons/tags */
+      --r-lg:         5px;   /* sharp — cards */
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -89,7 +91,7 @@
     .card {
       background: var(--glass);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--r-lg);
       padding: 24px;
       backdrop-filter: var(--blur);
       -webkit-backdrop-filter: var(--blur);
@@ -171,7 +173,7 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       padding: 7px 18px;
-      border-radius: 100px;
+      border-radius: var(--r);
     }
     .badge::before {
       content: '';
@@ -217,24 +219,47 @@
     .persona-card {
       background: var(--glass);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px 24px;
+      border-radius: var(--r-lg);
+      padding: 24px;
       backdrop-filter: var(--blur);
       -webkit-backdrop-filter: var(--blur);
       box-shadow: 0 4px 24px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.065);
-      transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease, opacity 0.24s ease;
+      transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
     }
     .persona-card.active {
       border-color: var(--green-border);
       box-shadow: 0 4px 24px rgba(0,0,0,0.34), 0 0 0 1px rgba(46,204,113,0.08), inset 0 1px 0 rgba(255,255,255,0.07);
     }
+    .persona-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: 0 10px 44px rgba(0,0,0,0.46), inset 0 1px 0 rgba(255,255,255,0.09);
+    }
     .persona-card.active:hover {
       border-color: rgba(46,204,113,0.52);
       box-shadow: 0 10px 44px rgba(0,0,0,0.46), 0 0 24px rgba(46,204,113,0.09), inset 0 1px 0 rgba(255,255,255,0.09);
-      transform: translateY(-3px);
     }
-    .persona-card.dim { opacity: 0.6; }
-    .persona-card.dim:hover { opacity: 0.78; transform: translateY(-1px); }
+
+    /* clickable header */
+    .persona-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .persona-head:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
+    .chevron {
+      flex-shrink: 0;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: var(--muted);
+      transition: transform 0.3s ease, color 0.3s ease;
+      margin-top: 2px;
+    }
+    .persona-card.open .chevron { transform: rotate(90deg); color: var(--green); }
 
     .persona-status {
       display: inline-flex;
@@ -245,8 +270,8 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       padding: 4px 11px;
-      border-radius: 100px;
-      margin-bottom: 18px;
+      border-radius: var(--r);
+      margin-bottom: 16px;
     }
     .persona-status.live {
       background: rgba(46,204,113,0.1);
@@ -280,14 +305,60 @@
       letter-spacing: 0.07em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 16px;
     }
     .persona-desc {
       font-size: 0.875rem;
       color: var(--muted);
       line-height: 1.68;
-      margin: 0;
+      margin: 14px 0 0;
     }
+
+    /* ── AGENT ROSTER (expandable) ── */
+    .roster {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.34s ease;
+    }
+    .persona-card.open .roster { grid-template-rows: 1fr; }
+    .roster-inner { overflow: hidden; min-height: 0; }
+    .roster-label {
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 18px 0 2px;
+    }
+    .agent-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      opacity: 0;
+      transform: translateX(-6px);
+    }
+    .agent-row:last-child { border-bottom: none; }
+    .persona-card.open .agent-row {
+      animation: agent-in 0.34s ease forwards;
+      animation-delay: calc(var(--i, 0) * 55ms);
+    }
+    @keyframes agent-in {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .agent-name { font-size: 0.86rem; color: var(--text); font-weight: 500; }
+    .agent-pill {
+      flex-shrink: 0;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: var(--r);
+    }
+    .agent-pill.live { color: var(--green); border: 1px solid var(--green-border); background: rgba(46,204,113,0.08); }
+    .agent-pill.soon { color: var(--muted); border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
 
     /* ── STATS ── */
     .stats-row {
@@ -295,7 +366,7 @@
       grid-template-columns: repeat(4, 1fr);
       background: var(--glass);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--r-lg);
       overflow: hidden;
       backdrop-filter: var(--blur);
       -webkit-backdrop-filter: var(--blur);
@@ -324,7 +395,7 @@
     .steps li::before {
       content: counter(step);
       min-width: 28px; height: 28px;
-      border-radius: 50%;
+      border-radius: var(--r);
       background: var(--green);
       color: #000;
       font-weight: 800;
@@ -346,7 +417,7 @@
     .track-card {
       background: var(--glass);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: var(--r-lg);
       padding: 28px;
       cursor: pointer;
       position: relative;
@@ -375,7 +446,7 @@
       position: absolute;
       top: 18px; right: 18px;
       width: 22px; height: 22px;
-      border-radius: 50%;
+      border-radius: var(--r);
       border: 1.5px solid rgba(255,255,255,0.18);
       display: flex; align-items: center; justify-content: center;
       font-size: 0.66rem;
@@ -397,7 +468,7 @@
     .calc-box {
       background: rgba(46,204,113,0.04);
       border: 1px solid var(--green-border);
-      border-radius: 12px;
+      border-radius: var(--r-lg);
       padding: 20px 24px;
       margin-top: 14px;
       display: none;
@@ -431,7 +502,7 @@
     .form-wrap {
       background: var(--glass);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: var(--r-lg);
       padding: 40px;
       backdrop-filter: var(--blur);
       -webkit-backdrop-filter: var(--blur);
@@ -458,7 +529,7 @@
       padding: 13px 16px;
       background: rgba(255,255,255,0.048);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
+      border-radius: var(--r);
       color: var(--text);
       font-size: 0.94rem;
       font-family: inherit;
@@ -478,7 +549,7 @@
       background: var(--green);
       color: #000;
       border: none;
-      border-radius: 10px;
+      border-radius: var(--r);
       font-size: 0.96rem;
       font-weight: 800;
       font-family: inherit;
@@ -507,7 +578,7 @@
     .disclaimer {
       background: rgba(243,156,18,0.04);
       border: 1px solid rgba(243,156,18,0.16);
-      border-radius: 10px;
+      border-radius: var(--r);
       padding: 18px 22px;
       font-size: 0.79rem;
       color: var(--muted);
@@ -574,26 +645,72 @@
 <!-- MEET NORI AND FRIENDS -->
 <section>
   <h2>Meet <span class="accent">NORI and Friends.</span></h2>
-  <p>An AI system that scans your data, dispatches specialized agents, and delivers two weekly outputs: a <strong>Business Dashboard</strong> every Monday and a <strong>Life Audit Brief</strong> every Sunday. Each character covers a lane.</p>
+  <p>An AI system that scans your data, dispatches specialized agents, and delivers two weekly outputs: a <strong>Business Dashboard</strong> every Monday and a <strong>Life Audit Brief</strong> every Sunday. Each character runs its own roster of agents — <strong>tap a card to see them.</strong></p>
 
   <div class="persona-grid">
-    <div class="persona-card active reveal">
-      <div class="persona-status live">Live Now</div>
-      <div class="persona-name">NORI</div>
-      <div class="persona-mode">Business + Life OS</div>
+    <div class="persona-card active reveal open">
+      <div class="persona-head" role="button" tabindex="0" aria-expanded="true" onclick="toggleRoster(this)">
+        <div>
+          <div class="persona-status live">Live Now</div>
+          <div class="persona-name">NORI</div>
+          <div class="persona-mode">Business + Life OS</div>
+        </div>
+        <span class="chevron" aria-hidden="true">&#x203A;</span>
+      </div>
       <p class="persona-desc">COO-level revenue tracking, milestone planning, risk analysis, and team ops — plus your full life audit command center.</p>
+      <div class="roster">
+        <div class="roster-inner">
+          <div class="roster-label">Agents</div>
+          <div class="agent-row" style="--i:1"><span class="agent-name">Revenue Tracker</span><span class="agent-pill live">Live</span></div>
+          <div class="agent-row" style="--i:2"><span class="agent-name">Milestone Planner</span><span class="agent-pill live">Live</span></div>
+          <div class="agent-row" style="--i:3"><span class="agent-name">Risk Analyst</span><span class="agent-pill live">Live</span></div>
+          <div class="agent-row" style="--i:4"><span class="agent-name">Ops Coordinator</span><span class="agent-pill live">Live</span></div>
+        </div>
+      </div>
     </div>
-    <div class="persona-card dim reveal">
-      <div class="persona-status soon">Coming Soon</div>
-      <div class="persona-name">Maki</div>
-      <div class="persona-mode">Student Agent</div>
-      <p class="persona-desc">Built for ages 10–18. Goals, grades, and getting ahead — powered by an AI that actually speaks student.</p>
+
+    <div class="persona-card reveal">
+      <div class="persona-head" role="button" tabindex="0" aria-expanded="false" onclick="toggleRoster(this)">
+        <div>
+          <div class="persona-status soon">Coming Soon</div>
+          <div class="persona-name">Maki</div>
+          <div class="persona-mode">Mentor</div>
+        </div>
+        <span class="chevron" aria-hidden="true">&#x203A;</span>
+      </div>
+      <p class="persona-desc">The mentor in your corner — built for ages 10–18. Goals, grades, and getting ahead, with an AI that actually speaks student.</p>
+      <div class="roster">
+        <div class="roster-inner">
+          <div class="roster-label">Agents — funded by this round</div>
+          <div class="agent-row" style="--i:1"><span class="agent-name">Study Coach</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:2"><span class="agent-name">Goal Tracker</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:3"><span class="agent-name">Money Basics</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:4"><span class="agent-name">College &amp; Career Scout</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:5"><span class="agent-name">Accountability Buddy</span><span class="agent-pill soon">Soon</span></div>
+        </div>
+      </div>
     </div>
-    <div class="persona-card dim reveal">
-      <div class="persona-status soon">Coming Soon</div>
-      <div class="persona-name">Mac</div>
-      <div class="persona-mode">Family CFO</div>
-      <p class="persona-desc">Household cash flow, expense audits, and long-term family wealth strategy — your household command center.</p>
+
+    <div class="persona-card reveal">
+      <div class="persona-head" role="button" tabindex="0" aria-expanded="false" onclick="toggleRoster(this)">
+        <div>
+          <div class="persona-status soon">Coming Soon</div>
+          <div class="persona-name">Mac</div>
+          <div class="persona-mode">Family CFO</div>
+        </div>
+        <span class="chevron" aria-hidden="true">&#x203A;</span>
+      </div>
+      <p class="persona-desc">The household money mind — cash flow, expense audits, and long-term family wealth strategy in one command center.</p>
+      <div class="roster">
+        <div class="roster-inner">
+          <div class="roster-label">Agents — funded by this round</div>
+          <div class="agent-row" style="--i:1"><span class="agent-name">Cash Flow Monitor</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:2"><span class="agent-name">Expense Auditor</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:3"><span class="agent-name">Wealth Strategist</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:4"><span class="agent-name">Bill Negotiator</span><span class="agent-pill soon">Soon</span></div>
+          <div class="agent-row" style="--i:5"><span class="agent-name">Credit Builder</span><span class="agent-pill soon">Soon</span></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -814,6 +931,18 @@
     const idx = siblings.indexOf(el);
     if (siblings.length > 1) el.dataset.delay = idx * 85;
     revealObserver.observe(el);
+  });
+
+  // Agent roster expand/collapse
+  function toggleRoster(head) {
+    const card = head.closest('.persona-card');
+    const open = card.classList.toggle('open');
+    head.setAttribute('aria-expanded', String(open));
+  }
+  document.querySelectorAll('.persona-head').forEach((head) => {
+    head.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleRoster(head); }
+    });
   });
 
   // Track selection
